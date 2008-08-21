@@ -1,0 +1,112 @@
+= Scrapist, a powerfully simple web scraper in Ruby
+
+== Purpose and Problems Addressed
+Scrapist's purpose is to extract items from a web site, where items would correspond to records in a database or rows in a spreadsheet.
+
+One common problem is that item information is not presented uniformly among web sites:
+* Some sites have a separate page for each item
+* Others present many items on the same page
+* Still others present some item information on an index page, and some item information on individual item pages
+
+Scrapist is able to handle all of the above cases, and more (including pagination)
+
+== Required Gems
+* hpricot
+* mechanize
+* ftools
+
+== Installation
+<tt>svn checkout http://scrapist.rubyforge.org/svn/</tt>
+or
+<tt>svn checkout svn://rubyforge.org/var/svn/scrapist</tt>
+
+== Creating a Scrape
+=== Scrape Components, in Brief
+==== Scraper
+Defines how to traverse a site, including how to find pagination links,
+how to find links to individual item pages, and how to define the boundaries
+of items when there are many on one page.
+individual item pages look like.
+
+You can also define scrape-wide attributes (more in Attributes below)
+
+==== Indexes
+Indexes serve two main purposes:
+* They define the pages which contain links to individual item pages, or the
+  pages which contain multiple items.
+* They define attributes for the items found from this index.  Usually, 
+  index pages correspond to different categories in the site you're scraping,
+  so you'll use indexes to define category-specific attributes.
+
+Indexes can also override the options you've set in your scrape object.
+
+==== Attributes
+Attributes correspond to fields in a database. You can define attributes for either
+the entire scrape (scrape.add_attribute) or indexes (index.add_attribute). Attributes
+defined at the scrape level will be inherited by indexes.  Indexes can re-define
+attributes for themselves by adding an attribute with the same name. You do not
+have to define all attributes at the scrape level; they can be defined at just
+the index level.
+
+=== Scraper Object
+Scraper.new takes the following options:
+
+:domain: the base URL of the site you're scraping. For example, "http://www.imdb.com"
+:item_address_selector: an Hpricot-compatible (xpath or css) selector which
+  will find URL's for individual item pages on an index page.
+  Don't use if the site you're scraping doesn't have individual
+  item pages.
+:parse_item_address: a proc which will is passed the hpricot element selected by
+  :item_address_selector . Useful if, for example, the URL's for individual item
+  pages are in javascript rather than an a element's href attribute
+:pagination: a hash which needs a :selector option.  The :selector option is used to find
+  pagination links.
+:indexed_item_container_selector: Defines the boundaries of items when there are many on
+  one page. Can be a regex or an hpricot selector. (Need example)
+
+You can also add scrape-wide attributes.
+
+Simple Example:
+<tt>scraper = Scraper.new(
+  :domain => 'http://www.imdb.com/', # The root of the site
+  :item_address_selector => "a.title"   # The selector for Item links for the Scraper
+)
+
+# A Static Attribute, to be applied to all Items on all Indexes (unless it's overridden)
+scraper.add_attribute(:name => "project", :value => "Scrapist Example")
+</tt>
+
+
+=== Indexes
+When you create an index, you can use the same options (:domain, :parse_item_address, 
+:pagination, :indexed_item_container_selector) as you use when creating the scraper object.
+
+In addition, you must set the :path option to the absolute path to the index. For
+example, to add the "now playing" page as an index on IMDB, you would write:
+
+<tt>nowplaying = scraper.add_index(:path => "/nowplaying/")</tt>
+
+You can also add attributes at the index level.
+
+=== Attributes
+Attributes take the following options:
+:name: used to identify the attribute when you're writing your scrape
+:selector: an Hpricot selector.  By default, the element(s) found by Hpricot
+  will have inner_text called on them, and that will be the value for this
+  attribute.  If you want to process the data more, use a block.
+:value: A string, for when you have a static value. Note that it doesn't
+  make sense to use both the :selector and :value options.
+block: When you add an attribute, you can add a block.  If you're using
+  :selector, each hpricot element (need to define further?)
+  will be passed to the block. If you're using :value, :value's value will
+  be passed to the block.
+
+Example:
+<tt>nowplaying = scraper.add_index(:path => "/nowplaying/")
+director = nowplaying.add_attribute(:name => "director", :selector => "h5[text()*=Director:]") do |h_elem|
+  h_elem.next_sibling.inner_text
+end
+</tt>
+
+
+Copyright (c) 2008 Really Simple llc, released under the MIT license

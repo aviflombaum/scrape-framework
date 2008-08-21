@@ -1,0 +1,7 @@
+Version 0.4.0 (October 10, 2007)
+
+* Usage in Readme
+* RDoc 
+* add pagination support for indexes
+* improve writer, provide output options
+* remove DP-Centric elements.
