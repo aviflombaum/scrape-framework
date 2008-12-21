@@ -27,6 +27,7 @@ require 'fastercsv'
 require 'mechanize'
 require 'ftools'
 require 'ruby-debug'
+require 'activesupport'
 
 current_dir = File.dirname(__FILE__)
 require current_dir + '/../lib/extensions/hpricot'
@@ -59,6 +60,10 @@ class Scraper
     :pagination,
     :indexed_item_container_selector,
     :item_index
+  
+  def self.get_hdoc(url, agent)
+    return get_hdoc(url, agent)
+  end
   
   def initialize(options = {})
     self.domain = options[:domain]
@@ -424,7 +429,15 @@ class Index < Scraper
       if pagination[:selector]
         first_page = get_hdoc(self.path, self.agent)
         pages = (first_page/pagination[:selector]).collect do |e| 
-          e.get_attribute("href")
+          if pagination[:block]
+            if pagination[:block].is_a?(Proc)
+              pagination[:block].call(e)
+            else  
+              raise "Pagination Block must be a proc"
+            end
+          else
+            e.get_attribute("href")
+          end
         end.push(self.path).flatten.uniq.collect do |i| 
           [get_hdoc(full_url_from_current_path(i), self.agent), i]
         end
