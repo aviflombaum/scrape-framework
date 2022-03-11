@@ -1,14 +1,14 @@
-= Scrapist, a powerfully simple web scraper in Ruby
+= Scrape Framework, a powerfully simple web scraper in Ruby
 
 == Purpose and Problems Addressed
-Scrapist's purpose is to extract items from a web site, where items would correspond to records in a database or rows in a spreadsheet.
+Scrape Framework's purpose is to extract items from a web site, where items would correspond to records in a database or rows in a spreadsheet.
 
 One common problem is that item information is not presented uniformly among web sites:
 * Some sites have a separate page for each item
 * Others present many items on the same page
 * Still others present some item information on an index page, and some item information on individual item pages
 
-Scrapist is able to handle all of the above cases, and more (including pagination)
+Scrape Framework is able to handle all of the above cases, and more (including pagination)
 
 == Required Gems
 * hpricot
@@ -16,9 +16,9 @@ Scrapist is able to handle all of the above cases, and more (including paginatio
 * ftools
 
 == Installation
-<tt>svn checkout http://scrapist.rubyforge.org/svn/</tt>
+<tt>svn checkout http://Scrape Framework.rubyforge.org/svn/</tt>
 or
-<tt>svn checkout svn://rubyforge.org/var/svn/scrapist</tt>
+<tt>svn checkout svn://rubyforge.org/var/svn/Scrape Framework</tt>
 
 == Creating a Scrape
 === Scrape Components, in Brief
